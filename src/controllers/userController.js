@@ -1,8 +1,9 @@
-// src/controllers/userController.js
 const User = require("../models/User");
 
+console.log("registered");
 // Get all users
 exports.getAllUsers = (req, res) => {
+  console.log("getAllUsers//////// called");
   // Retrieve and return all users from the database
   User.find()
     .then((users) => {
