@@ -3,7 +3,6 @@ const router = express.Router();
 
 const contactController = require("../controllers/contactController");
 
-// Contact routes
 router.get("/", contactController.getAllContacts);
 router.get("/:id", contactController.getContactById);
 router.post("/", contactController.createContact);

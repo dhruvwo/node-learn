@@ -1,8 +1,6 @@
 const Contact = require("../models/Contact");
 
-// Get all contacts
 exports.getAllContacts = (req, res) => {
-  // Retrieve and return all contacts from the database
   Contact.find()
     .then((contacts) => {
       res.status(200).json(contacts);
@@ -12,9 +10,7 @@ exports.getAllContacts = (req, res) => {
     });
 };
 
-// Get a single contact by ID
 exports.getContactById = (req, res) => {
-  // Retrieve and return a contact by ID from the database
   Contact.findById(req.params.id)
     .then((contact) => {
       if (!contact) {
@@ -27,16 +23,12 @@ exports.getContactById = (req, res) => {
     });
 };
 
-// Create a new contact
 exports.createContact = (req, res) => {
-  // Create a new contact using the request body
   const contact = new Contact({
     name: req.body.name,
     phone: req.body.phone,
-    // Add more contact properties as needed
   });
 
-  // Save the contact to the database
   contact
     .save()
     .then((createdContact) => {
@@ -47,9 +39,7 @@ exports.createContact = (req, res) => {
     });
 };
 
-// Update a contact by ID
 exports.updateContact = (req, res) => {
-  // Find and update a contact by ID in the database
   Contact.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((updatedContact) => {
       if (!updatedContact) {
@@ -62,9 +52,7 @@ exports.updateContact = (req, res) => {
     });
 };
 
-// Delete a contact by ID
 exports.deleteContact = (req, res) => {
-  // Find and delete a contact by ID from the database
   Contact.findByIdAndDelete(req.params.id)
     .then((deletedContact) => {
       if (!deletedContact) {
