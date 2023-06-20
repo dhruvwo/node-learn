@@ -1,0 +1,27 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# Dependency directories
+/dist/
+/build/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+
+# Configuration files
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: Exclude sensitive or personal data
+config/secrets.js
