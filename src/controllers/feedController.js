@@ -1,4 +1,5 @@
 const Feed = require("../models/Feed");
+const jwt = require("jsonwebtoken");
 
 exports.getAllFeeds = (req, res) => {
   Feed.find()
@@ -23,9 +24,53 @@ exports.getFeedById = (req, res) => {
     });
 };
 
-exports.createFeed = (req, res) => {
-  const feed = new Feed(req.body);
+exports.getMyFeeds = (req, res) => {
+  const token = req.headers["x-access-token"];
+  const decoded = jwt.verify(token, process.env.TOKEN_KEY);
+  console.log("decoded", decoded);
+  Feed.find({
+    userId: decoded.user_id,
+  })
+    .then((feed) => {
+      if (!feed) {
+        return res.status(404).json({ message: "Feed not found" });
+      }
+      res.status(200).json(feed);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
 
+exports.getFeedsWithUsers = (req, res) => {
+  const page = req.query.page || 1; // Current page number
+  const limit = 10; // Number of feeds per page
+  const skip = (page - 1) * limit; // Number of feeds to skip
+
+  Feed.find()
+    .populate("userId", "name")
+    .skip(skip)
+    .limit(limit)
+    .then((feed) => {
+      if (!feed) {
+        return res.status(404).json({ message: "Feed not found" });
+      }
+      res.status(200).json(feed);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
+
+exports.createFeed = (req, res) => {
+  console.log("req.body", req.body);
+  const feed = new Feed(req.body);
+  console.log("feed", feed);
+  const token = req.headers["x-access-token"];
+  console.log("token", token);
+  const decoded = jwt.verify(token, process.env.TOKEN_KEY);
+  console.log("user", { decoded });
+  feed.userId = decoded.user_id;
   feed
     .save()
     .then((createdFeed) => {

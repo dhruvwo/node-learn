@@ -87,7 +87,7 @@ exports.login = async (req, res) => {
       { user_id: foundUser._id, email },
       process.env.TOKEN_KEY,
       {
-        expiresIn: "2h",
+        expiresIn: "200h",
       }
     );
     return res.status(200).json({
