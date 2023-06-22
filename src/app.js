@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const users = require("./routes/userRoutes");
 const feeds = require("./routes/feedRoutes");
 const ai = require("./routes/aiRoutes");
-const fileUploads = require("./middleware/fileUploads");
+const fileUpload = require("express-fileupload");
 
 const app = express({});
 
@@ -22,15 +22,29 @@ app.get("/file-uploader", (req, res) => {
     </form>
   `);
 });
-app.post("/uploadFile", fileUploads.single("file"), (req, res) => {
-  const originalFileName = req.file.originalname;
-  const uploadedFilePath = req.file.path;
 
-  console.log("newFilePath", { uploadedFilePath, originalFileName });
-  // Perform further operations on the uploaded file as needed
+app.use(fileUpload());
 
-  // Return a success response
-  res.send("File uploaded and processed successfully.");
+app.post("/upload", function (req, res) {
+  let sampleFile;
+  let uploadPath;
+  console.log(" req.files", req.files);
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  sampleFile = req.files.file;
+  console.log("sampleFile", sampleFile);
+  uploadPath = __dirname + "\\uploads\\" + sampleFile.name;
+  console.log("uploadPath", uploadPath);
+  // Use the mv() method to place the file somewhere on your server
+  sampleFile.mv(uploadPath, function (err) {
+    console.log("err", err);
+    if (err) return res.status(500).send(err);
+
+    res.send("File uploaded!");
+  });
 });
 
 app.use((req, res) => {
