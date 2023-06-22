@@ -25,6 +25,10 @@ app.get("/file-uploader", (req, res) => {
 
 app.use(fileUpload());
 
+app.get("/version", function (req, res) {
+  return res.json("1.0.0");
+});
+
 app.post("/upload", function (req, res) {
   let sampleFile;
   let uploadPath;
