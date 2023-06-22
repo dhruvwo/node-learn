@@ -12,6 +12,33 @@ exports.getAllUsers = (req, res) => {
     });
 };
 
+exports.usersWithFeeds = (req, res) => {
+  User.aggregate([
+    {
+      $lookup: {
+        from: "feeds",
+        localField: "_id",
+        foreignField: "userId",
+        as: "feeds",
+      },
+    },
+    {
+      $limit: 5,
+    },
+    {
+      $project: {
+        name: 1,
+        "feeds.title": 1,
+      },
+    },
+  ])
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
 exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {

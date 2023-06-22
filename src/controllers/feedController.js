@@ -62,15 +62,15 @@ exports.getFeedsWithUsers = (req, res) => {
     });
 };
 
+exports.fileUpload = (req, res) => {};
+
 exports.createFeed = (req, res) => {
-  console.log("req.body", req.body);
-  const feed = new Feed(req.body);
-  console.log("feed", feed);
   const token = req.headers["x-access-token"];
-  console.log("token", token);
   const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-  console.log("user", { decoded });
-  feed.userId = decoded.user_id;
+  const feed = new Feed({
+    ...req.body,
+    userId: decoded.user_id,
+  });
   feed
     .save()
     .then((createdFeed) => {

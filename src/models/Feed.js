@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const feedSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: false },
+  image: { type: String, require: false },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
