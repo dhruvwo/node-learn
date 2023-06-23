@@ -1,10 +1,20 @@
 const Feed = require("../models/Feed");
 const jwt = require("jsonwebtoken");
 
-exports.getAllFeeds = (req, res) => {
+exports.getAllFeeds = async (req, res) => {
+  const { page = 1, limit = 3 } = req.query;
+  const count = await Feed.count();
   Feed.find()
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
     .then((feeds) => {
-      res.status(200).json(feeds);
+      res.status(200).json({
+        feeds,
+        pagination: {
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+        },
+      });
     })
     .catch((err) => {
       res.status(500).json({ message: err.message });

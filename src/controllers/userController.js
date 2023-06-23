@@ -15,15 +15,15 @@ exports.getAllUsers = (req, res) => {
 exports.usersWithFeeds = (req, res) => {
   User.aggregate([
     {
+      $limit: 5,
+    },
+    {
       $lookup: {
         from: "feeds",
         localField: "_id",
         foreignField: "userId",
         as: "feeds",
       },
-    },
-    {
-      $limit: 5,
     },
     {
       $project: {
@@ -39,6 +39,79 @@ exports.usersWithFeeds = (req, res) => {
       res.status(500).json({ message: err.message });
     });
 };
+
+exports.concatNames = (req, res) => {
+  const query = req.query;
+  const pipeline = [
+    {
+      $limit: 5,
+    },
+    {
+      $lookup: {
+        from: "feeds",
+        localField: "_id",
+        foreignField: "userId",
+        as: "feeds",
+      },
+    },
+    {
+      $project: {
+        nameEmail: { $concat: ["$name", " ", "$email"] },
+        name: 1,
+        email: 1,
+        "feeds.title": 1,
+      },
+    },
+  ];
+  if (query.search) {
+    pipeline.push({
+      $match: {
+        nameEmail: { $regex: ".*" + query.search },
+      },
+    });
+  }
+  User.aggregate(pipeline)
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
+
+exports.feedCounts = (req, res) => {
+  const pipeline = [
+    {
+      $lookup: {
+        from: "feeds",
+        localField: "_id",
+        foreignField: "userId",
+        as: "feeds",
+      },
+    },
+    {
+      $addFields: {
+        feedCount: { $size: "$feeds" },
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        "feeds.title": 1,
+        feedCount: 1,
+      },
+    },
+  ];
+  User.aggregate(pipeline)
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
+
 exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
