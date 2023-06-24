@@ -72,7 +72,38 @@ exports.getFeedsWithUsers = (req, res) => {
     });
 };
 
-exports.fileUpload = (req, res) => {};
+exports.getUserWithLookupInObj = (req, res) => {
+  const pipeline = [
+    {
+      $limit: 5,
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        nameEmail: { $concat: ["$user.name", " ", "$user.email"] },
+        title: 1,
+      },
+    },
+  ];
+  Feed.aggregate(pipeline)
+    .then((feed) => {
+      if (!feed) {
+        return res.status(404).json({ message: "Feed not found" });
+      }
+      res.status(200).json(feed);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
 
 exports.createFeed = (req, res) => {
   const token = req.headers["x-access-token"];

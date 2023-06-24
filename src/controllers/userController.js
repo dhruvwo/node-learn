@@ -79,6 +79,46 @@ exports.concatNames = (req, res) => {
     });
 };
 
+exports.unwindFeeds = (req, res) => {
+  const query = req.query;
+  const pipeline = [
+    {
+      $limit: 5,
+    },
+    {
+      $lookup: {
+        from: "feeds",
+        localField: "_id",
+        foreignField: "userId",
+        as: "feeds",
+      },
+    },
+    { $unwind: "$feeds" },
+    {
+      $project: {
+        nameEmail: { $concat: ["$name", " ", "$email"] },
+        name: 1,
+        email: 1,
+        feed: "$feeds.title",
+      },
+    },
+  ];
+  if (query.search) {
+    pipeline.push({
+      $match: {
+        nameEmail: { $regex: ".*" + query.search },
+      },
+    });
+  }
+  User.aggregate(pipeline)
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: err.message });
+    });
+};
+
 exports.feedCounts = (req, res) => {
   const pipeline = [
     {

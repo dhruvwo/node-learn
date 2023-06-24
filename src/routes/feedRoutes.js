@@ -32,6 +32,7 @@ function validateFeedData(req, res, next) {
 router.get("/", auth, feedController.getAllFeeds);
 router.get("/my-feeds", auth, feedController.getMyFeeds);
 router.get("/feeds-with-users", auth, feedController.getFeedsWithUsers);
+router.get("/lookup-obj", auth, feedController.getUserWithLookupInObj);
 router.get("/:id", auth, feedController.getFeedById);
 
 router.post("/", auth, feedController.createFeed);

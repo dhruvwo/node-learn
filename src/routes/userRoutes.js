@@ -10,6 +10,7 @@ router.get("/", auth, userController.getAllUsers);
 router.get("/users-feeds", auth, userController.usersWithFeeds);
 router.get("/concat-names", auth, userController.concatNames);
 router.get("/feed-counts", auth, userController.feedCounts);
+router.get("/unwind-feeds", auth, userController.unwindFeeds);
 router.get("/:id", auth, userController.getUserById);
 router.post("/", auth, userController.createUser);
 router.put("/:id", auth, userController.updateUser);
