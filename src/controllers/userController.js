@@ -1,6 +1,27 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    type: "OAuth2",
+    user: process.env.nodeMailerEmail,
+    pass: process.env.nodeMailerPassword,
+    clientId: process.env.nodeMailerClientId,
+    clientSecret: process.env.nodeMailerClientSecret,
+    refreshToken: process.env.nodeMailerClientRefreshToken,
+  },
+});
+const mailOptions = {
+  from: "dhruv.webosmotic@gmail.com",
+  subject: "Sending Email using Node.js",
+  html: "<h1>Welcome</h1><p>That was easy!</p>",
+};
 
 exports.getAllUsers = (req, res) => {
   User.find()
@@ -237,6 +258,24 @@ exports.login = async (req, res) => {
         userId: foundUser._id,
       },
       token,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Something went wrong!");
+  }
+};
+exports.sendMail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    transporter.sendMail({ ...mailOptions, to: email }, function (error, info) {
+      if (error) {
+        return res.status(400).json(error);
+      } else {
+        return res.status(200).json({
+          success: true,
+          message: `Mail sent to ${email}`,
+        });
+      }
     });
   } catch (err) {
     console.log(err);
