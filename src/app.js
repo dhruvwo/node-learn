@@ -7,7 +7,8 @@ const ai = require("./routes/aiRoutes");
 const fileUpload = require("express-fileupload");
 const expressWinston = require("express-winston");
 const logger = require("./services/logger");
-const { buildPDF, buildHTMLPDF } = require("./services/pdfService");
+const { buildPDF } = require("./services/pdfService");
+const { generateHtmlPdf } = require("./services/htmlToPdf");
 
 const app = express({});
 
@@ -85,16 +86,13 @@ app.get("/get-pdf", (req, res) => {
   );
 });
 
-let counter = 0;
-buildHTMLPDF(
-  (chunk) => {
-    counter++;
-    console.log("data update", counter);
-  },
-  () => {
-    console.log("stream ended");
-  }
-);
+app.get("/get-pdf-from-template", async (req, res) => {
+  const pdfBuffer = await generateHtmlPdf();
+  console.log("done", { pdfBuffer });
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "attachment;filename=template.pdf");
+  res.send(pdfBuffer);
+});
 
 app.use(
   expressWinston.errorLogger({

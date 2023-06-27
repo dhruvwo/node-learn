@@ -68,12 +68,4 @@ async function buildPDF(dataCallback, endCallback) {
   doc.on("end", endCallback);
 }
 
-async function buildHTMLPDF(dataCallback, endCallback) {
-  const doc = new PDFDocument({ bufferPages: true, margin: 30, size: "A4" });
-  doc.pipe(fs.createWriteStream("./html-document.pdf"));
-
-  doc.on("data", dataCallback);
-  doc.on("end", endCallback);
-}
-
-module.exports = { buildPDF, buildHTMLPDF };
+module.exports = { buildPDF };
