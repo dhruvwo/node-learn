@@ -7,6 +7,7 @@ const ai = require("./routes/aiRoutes");
 const fileUpload = require("express-fileupload");
 const expressWinston = require("express-winston");
 const logger = require("./services/logger");
+const { buildPDF, buildHTMLPDF } = require("./services/pdfService");
 
 const app = express({});
 
@@ -27,21 +28,6 @@ app.get("/file-uploader", (req, res) => {
 
 app.use(fileUpload());
 
-app.get("/log-warning", function (req, res) {
-  logger.warn("this is logger warning");
-  return res.status(200).json(true);
-});
-
-app.get("/log-info", function (req, res) {
-  logger.info("this is logger info");
-  return res.status(200).json(true);
-});
-
-app.get("/log-error", function (req, res) {
-  logger.error("this is logger error");
-  return res.status(200).json(true);
-});
-
 app.get("/version", function (req, res) {
   return res.json("1.0.0");
 });
@@ -61,6 +47,61 @@ app.post("/upload", function (req, res) {
   });
 });
 
+app.get("/version", function (req, res) {
+  return res.json("1.0.0");
+});
+
+app.get("/log-warning", function (req, res) {
+  logger.warn("this is logger warning");
+  return res.status(200).json(true);
+});
+
+app.get("/log-info", function (req, res) {
+  logger.info("this is logger info");
+  return res.status(200).json(true);
+});
+
+app.get("/log-error", function (req, res) {
+  logger.error("this is logger error");
+  return res.status(200).json(true);
+});
+
+app.get("/get-pdf", (req, res) => {
+  const stream = res.writeHead(200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment;filename=invoice.pdf`,
+  });
+  let counter = 0;
+  buildPDF(
+    (chunk) => {
+      counter++;
+      console.log("data update", counter);
+      stream.write(chunk);
+    },
+    () => {
+      console.log("stream ended");
+      stream.end();
+    }
+  );
+});
+
+let counter = 0;
+buildHTMLPDF(
+  (chunk) => {
+    counter++;
+    console.log("data update", counter);
+  },
+  () => {
+    console.log("stream ended");
+  }
+);
+
+app.use(
+  expressWinston.errorLogger({
+    winstonInstance: logger,
+  })
+);
+
 app.use((req, res) => {
   res.status(404).send("Can not find route!");
 });
@@ -69,11 +110,5 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
-
-app.use(
-  expressWinston.errorLogger({
-    winstonInstance: logger,
-  })
-);
 
 module.exports = app;

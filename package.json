@@ -24,6 +24,7 @@
     "nodemailer": "^6.9.3",
     "openai": "^3.3.0",
     "pdfkit": "^0.13.0",
+    "pdfkit-table": "^0.1.99",
     "winston": "^3.9.0"
   },
   "devDependencies": {
