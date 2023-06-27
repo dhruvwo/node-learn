@@ -5,6 +5,8 @@ const users = require("./routes/userRoutes");
 const feeds = require("./routes/feedRoutes");
 const ai = require("./routes/aiRoutes");
 const fileUpload = require("express-fileupload");
+const expressWinston = require("express-winston");
+const logger = require("./services/logger");
 
 const app = express({});
 
@@ -25,6 +27,21 @@ app.get("/file-uploader", (req, res) => {
 
 app.use(fileUpload());
 
+app.get("/log-warning", function (req, res) {
+  logger.warn("this is logger warning");
+  return res.status(200).json(true);
+});
+
+app.get("/log-info", function (req, res) {
+  logger.info("this is logger info");
+  return res.status(200).json(true);
+});
+
+app.get("/log-error", function (req, res) {
+  logger.error("this is logger error");
+  return res.status(200).json(true);
+});
+
 app.get("/version", function (req, res) {
   return res.json("1.0.0");
 });
@@ -32,19 +49,12 @@ app.get("/version", function (req, res) {
 app.post("/upload", function (req, res) {
   let sampleFile;
   let uploadPath;
-  console.log(" req.files", req.files);
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send("No files were uploaded.");
   }
-
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
   sampleFile = req.files.file;
-  console.log("sampleFile", sampleFile);
   uploadPath = __dirname + "\\uploads\\" + sampleFile.name;
-  console.log("uploadPath", uploadPath);
-  // Use the mv() method to place the file somewhere on your server
   sampleFile.mv(uploadPath, function (err) {
-    console.log("err", err);
     if (err) return res.status(500).send(err);
 
     res.send("File uploaded!");
@@ -54,9 +64,16 @@ app.post("/upload", function (req, res) {
 app.use((req, res) => {
   res.status(404).send("Can not find route!");
 });
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
+
+app.use(
+  expressWinston.errorLogger({
+    winstonInstance: logger,
+  })
+);
 
 module.exports = app;
