@@ -30,7 +30,7 @@ async function generateHtmlPdf() {
   // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
   const html = result;
   // we are using headless mode
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   // We set the page content as the generated html by handlebars
   await page.setContent(html, { waitUntil: "networkidle0" });
