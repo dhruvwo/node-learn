@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server-install": "npm install && cd ./node_modules/puppeteer && node ./install.js && npm install && cd .. && cd ..",
+    "server-install": "npm install && node ./node_modules/puppeteer/install.js",
     "start": "nodemon server.js",
     "build": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
