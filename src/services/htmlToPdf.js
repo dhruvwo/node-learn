@@ -3,6 +3,7 @@ const path = require("path");
 const utils = require("util");
 const puppeteer = require("puppeteer");
 const hb = require("handlebars");
+const logger = require("./logger");
 const readFile = utils.promisify(fs.readFile);
 
 async function getTemplateHtml() {
@@ -16,39 +17,41 @@ async function getTemplateHtml() {
 }
 
 async function generateHtmlPdf() {
-  let data = {
-    title: "as",
-  };
-  const res = await getTemplateHtml();
-  // Now we have the html code of our template in res object
-  // you can check by logging it on console
-  // console.log(res)
-  console.log("Compiing the template with handlebars");
-  const template = hb.compile(res, { strict: true });
-  // we have compile our code with handlebars
-  const result = template(data);
-  // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
-  const html = result;
-  // we are using headless mode
-  console.log("launching browser......");
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ["--headless"],
-  });
-  console.log("launch browser", browser);
-  const version = await browser.version();
-  console.log("versionnn", version);
-  // const browser = await puppeteer.launch({
-  //   executablePath: "/opt/render/.cache/puppeteer/chrome/linux-114.0.5735.133",
-  // });
-  const page = await browser.newPage();
-  // We set the page content as the generated html by handlebars
-  await page.setContent(html, { waitUntil: "networkidle0" });
-  // We use pdf function to generate the pdf in the same folder as this file.
-  const pdfBuffer = await page.pdf({ path: "invoice.pdf", format: "A4" });
-  await browser.close();
-  console.log("PDF Generated");
-  return pdfBuffer;
+  try {
+    let data = {
+      title: "as",
+    };
+    const res = await getTemplateHtml();
+    // Now we have the html code of our template in res object
+    // you can check by logging it on console
+    // console.log(res)
+    console.log("Compiing the template with handlebars");
+    const template = hb.compile(res, { strict: true });
+    // we have compile our code with handlebars
+    const result = template(data);
+    // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
+    const html = result;
+    // we are using headless mode
+    console.log("launching browser......");
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: ["--headless"],
+    });
+    console.log("launch browser", browser);
+    const version = await browser.version();
+    console.log("browser version", version);
+    const page = await browser.newPage();
+    // We set the page content as the generated html by handlebars
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    // We use pdf function to generate the pdf in the same folder as this file.
+    const pdfBuffer = await page.pdf({ path: "invoice.pdf", format: "A4" });
+    await browser.close();
+    console.log("PDF Generated");
+    return pdfBuffer;
+  } catch (error) {
+    logger.error(error);
+    return error;
+  }
 }
 
 module.exports = { generateHtmlPdf };
