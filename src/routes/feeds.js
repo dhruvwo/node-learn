@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("./../middleware/auth");
+const auth = require("../middleware/auth");
 
 const feedController = require("../controllers/feedController");
-const fileUploads = require("../middleware/fileUploads");
 
 function validateFeedData(req, res, next) {
   const { title, description, image } = req.body;
